@@ -36,6 +36,23 @@ public class RGBLedMatrix : IDisposable
             opt = new(options);
             var args = Environment.GetCommandLineArgs();
 
+            Console.WriteLine("Initializing RGB LED Matrix with the following options:");
+            Console.WriteLine($" Rows: {options.Rows}");
+            Console.WriteLine($" Columns: {options.Cols}");
+            Console.WriteLine($" Chain Length: {options.ChainLength}");
+            Console.WriteLine($" Parallel: {options.Parallel}");
+            Console.WriteLine($" Brightness: {options.Brightness}");
+            Console.WriteLine($" Hardware Mapping: {options.HardwareMapping ?? "default"}");
+            Console.WriteLine($" LED RGB Sequence: {options.LedRgbSequence ?? "default"}");
+            Console.WriteLine($" Pixel Mapper Config: {options.PixelMapperConfig ?? "default"}");
+            Console.WriteLine($" Panel Type: {options.PanelType ?? "default"}");
+            Console.WriteLine($" Disable Hardware Pulsing: {options.DisableHardwarePulsing}");
+            Console.WriteLine($" Show Refresh Rate: {options.ShowRefreshRate}");
+            Console.WriteLine($" Inverse Colors: {options.InverseColors}");
+            Console.WriteLine($" Limit Refresh Rate (Hz): {options.LimitRefreshRateHz}");
+            Console.WriteLine($" GPIO Slowdown: {options.GpioSlowdown}");
+
+
             // Because gpio-slowdown is not provided in the options struct,
             // we manually add it.
             // Let's add it first to the command-line we pass to the
@@ -43,10 +60,25 @@ public class RGBLedMatrix : IDisposable
             // users' commandline.
             // As always, as the _very_ first, we need to provide the
             // program name argv[0].
-            var argv = new string[args.Length + 1];
+            // Count extra flags
+            int extraFlags = 1; // for --led-slowdown-gpio
+            if (options.DisableHardwarePulsing)
+                extraFlags++; // for --led-no-hardware-pulse
+
+            // Allocate argv array
+            var argv = new string[args.Length + extraFlags];
+
             argv[0] = args[0];
-            argv[1] = $"--led-slowdown-gpio={options.GpioSlowdown}";
-            Array.Copy(args, 1, argv, 2, args.Length - 1);
+
+            // Add optional flags
+            int index = 1;
+            argv[index++] = $"--led-slowdown-gpio={options.GpioSlowdown}";
+            if (options.DisableHardwarePulsing)
+                argv[index++] = "--led-no-hardware-pulse";
+
+            // Copy remaining user args
+            Array.Copy(args, 1, argv, index, args.Length - 1);
+
 
             matrix = led_matrix_create_from_options_const_argv(ref opt, argv.Length, argv);
             if (matrix == (IntPtr)0)
