@@ -104,4 +104,38 @@ public class RGBLedCanvas
     /// <returns>How many pixels was advanced on the screen.</returns>
     public int DrawText(RGBLedFont font, int x, int y, Color color, string text, int spacing = 0, bool vertical = false) =>
         font.DrawText(_canvas, x, y, color, text, spacing, vertical);
+
+
+    public void DrawRect(int x, int y, int width, int height, Color color)
+    {
+        // Draw top and bottom
+        for (int i = x; i < x + width; i++)
+        {
+            SetPixel(i, y, color);
+            SetPixel(i, y + height - 1, color);
+        }
+
+        // Draw left and right
+        for (int i = y; i < y + height; i++)
+        {
+            SetPixel(x, i, color);
+            SetPixel(x + width - 1, i, color);
+        }
+    }
+
+    public void DrawImage(int x, int y, int width, int height, Span<Color> pixels)
+    {
+        if (pixels.Length < width * height)
+            throw new ArgumentException("Pixel array too small");
+
+        for (int j = 0; j < height; j++)
+        {
+            for (int i = 0; i < width; i++)
+            {
+                SetPixel(x + i, y + j, pixels[j * width + i]);
+            }
+        }
+    }
+
+
 }
