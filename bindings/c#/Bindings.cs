@@ -85,4 +85,12 @@ internal static class Bindings
 
     [DllImport(Lib)]
     public static extern void draw_line(IntPtr canvas, int x0, int y0, int x1, int y1, byte r, byte g, byte b);
+
+    [DllImport(Lib)]
+    [SuppressGCTransition]
+    public static extern int font_get_baseline(IntPtr font);
+
+    [DllImport(Lib)]
+    [SuppressGCTransition]
+    public static extern int font_get_height(IntPtr font);
 }
