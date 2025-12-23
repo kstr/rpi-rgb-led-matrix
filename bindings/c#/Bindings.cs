@@ -86,11 +86,13 @@ internal static class Bindings
     [DllImport(Lib)]
     public static extern void draw_line(IntPtr canvas, int x0, int y0, int x1, int y1, byte r, byte g, byte b);
 
-    [DllImport(Lib)]
-    [SuppressGCTransition]
-    public static extern int font_get_baseline(IntPtr font);
+    private const string TextBridge = "libtext-bridge.so";
 
-    [DllImport(Lib)]
-    [SuppressGCTransition]
-    public static extern int font_get_height(IntPtr font);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void SetPixelCallback(int x, int y, byte r, byte g, byte b);
+
+    [DllImport(TextBridge, CharSet = CharSet.Ansi)]
+    public static extern int draw_text_callback(
+        IntPtr font, int x, int y, byte r, byte g, byte b,
+        string text, int spacing, SetPixelCallback callback, int w, int h);
 }
