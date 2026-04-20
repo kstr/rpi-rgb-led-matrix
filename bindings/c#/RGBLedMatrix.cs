@@ -61,9 +61,11 @@ public class RGBLedMatrix : IDisposable
             // As always, as the _very_ first, we need to provide the
             // program name argv[0].
             // Count extra flags
-            int extraFlags = 1; // for --led-slowdown-gpio
+            int extraFlags = 2; // --led-slowdown-gpio and --led-no-drop-privs
             if (options.DisableHardwarePulsing)
-                extraFlags++; // for --led-no-hardware-pulse
+                extraFlags++;
+            if (options.ShowRefreshRate)
+                extraFlags++; // --led-show-refresh
 
             // Allocate argv array
             var argv = new string[args.Length + extraFlags];
@@ -72,12 +74,18 @@ public class RGBLedMatrix : IDisposable
 
             // Add optional flags
             int index = 1;
+
             argv[index++] = $"--led-slowdown-gpio={options.GpioSlowdown}";
+            argv[index++] = "--led-no-drop-privs";
             if (options.DisableHardwarePulsing)
                 argv[index++] = "--led-no-hardware-pulse";
+            if (options.ShowRefreshRate)
+                argv[index++] = "--led-show-refresh";        
 
             // Copy remaining user args
             Array.Copy(args, 1, argv, index, args.Length - 1);
+
+            Console.WriteLine($"[ARGV] {string.Join(" ", argv)}");
 
 
             matrix = led_matrix_create_from_options_const_argv(ref opt, argv.Length, argv);
